@@ -1,6 +1,9 @@
 Elasticsearch For Beginners: Indexing your Gmail Inbox
 =======================
 
+# IMPORTANT: 
+
+This is a fork of the original project, see this link for details on what this fork addresses: https://github.com/oliver006/elasticsearch-gmail/pulls?q=is%3Apr+author%3Abitsofinfo+is%3Aclosed
 
 
 #### What's this all about?
