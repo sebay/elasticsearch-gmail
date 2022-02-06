@@ -38,9 +38,8 @@ def strip_html_css_js(msg):
 
 def delete_index():
     try:
-        url = "%s/%s?refresh=true" % (tornado.options.options.es_url, tornado.options.options.index_name)
+        url = "%s/%s" % (tornado.options.options.es_url, tornado.options.options.index_name)
         request = HTTPRequest(url, method="DELETE", request_timeout=tornado.options.options.es_http_timeout_seconds)
-        body = {"refresh": True}
         response = http_client.fetch(request)
         logging.info('Delete index done   %s' % response.body)
     except:
@@ -66,14 +65,16 @@ def create_index():
                     "date_ts": {"type": "date"},
                 },
             }
-        },
-        "refresh": True
+        }
     }
-
+    headers = {
+        'Content-Type': 'application/json; charset=UTF-8'
+    }
     body = json.dumps(schema)
+    logging.info('Create index with body %s' % body)
     url = "%s/%s" % (tornado.options.options.es_url, tornado.options.options.index_name)
     try:
-        request = HTTPRequest(url, method="PUT", body=body, request_timeout=tornado.options.options.es_http_timeout_seconds)
+        request = HTTPRequest(url, method="PUT", body=body, headers=headers, request_timeout=tornado.options.options.es_http_timeout_seconds)
         response = http_client.fetch(request)
         logging.info('Create index done   %s' % response.body)
     except:
