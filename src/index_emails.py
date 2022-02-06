@@ -50,7 +50,7 @@ def create_index():
 
     schema = {
         "settings": {
-            "index.mapping.total_fields.limit": 2000,
+            "index.mapping.total_fields.limit": 10000,
             "number_of_shards": tornado.options.options.num_of_shards,
             "number_of_replicas": 0
         },
