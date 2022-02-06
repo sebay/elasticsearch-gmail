@@ -40,6 +40,7 @@ def delete_index():
     try:
         url = "%s/%s" % (tornado.options.options.es_url, tornado.options.options.index_name)
         request = HTTPRequest(url, method="DELETE", request_timeout=tornado.options.options.es_http_timeout_seconds)
+        body = {"refresh": True}
         response = http_client.fetch(request)
         logging.info('Delete index done   %s' % response.body)
     except:
@@ -54,24 +55,26 @@ def create_index():
             "number_of_replicas": 0
         },
         "mappings": {
-            tornado.options.options.es_document_type: {
                 "_source": {"enabled": True},
                 "properties": {
-                    "from": {"type": "string", "index": "not_analyzed"},
-                    "return-path": {"type": "string", "index": "not_analyzed"},
-                    "delivered-to": {"type": "string", "index": "not_analyzed"},
-                    "message-id": {"type": "string", "index": "not_analyzed"},
-                    "to": {"type": "string", "index": "not_analyzed"},
+                    "from": {"type": "text"},
+                    "return-path": {"type": "text"},
+                    "delivered-to": {"type": "text"},
+                    "message-id": {"type": "text"},
+                    "to": {"type": "text"},
                     "date_ts": {"type": "date"},
-                },
-            }
+                }
         }
     }
+
+    body = json.dumps(schema)
+    
     headers = {
         'Content-Type': 'application/json; charset=UTF-8'
     }
-    body = json.dumps(schema)
+
     logging.info('Create index with body %s' % body)
+    
     url = "%s/%s" % (tornado.options.options.es_url, tornado.options.options.index_name)
     try:
         request = HTTPRequest(url, method="PUT", body=body, headers=headers, request_timeout=tornado.options.options.es_http_timeout_seconds)
@@ -85,7 +88,7 @@ total_uploaded = 0
 def upload_batch(upload_data):
     upload_data_txt = ""
     for item in upload_data:
-        cmd = {'index': {'_index': tornado.options.options.index_name, '_type': tornado.options.options.es_document_type, '_id': item['message-id']}}
+        cmd = {'index': {'_index': tornado.options.options.index_name, '_type': '_doc', '_id': item['message-id']}}
         upload_data_txt += json.dumps(cmd) + "\n"
         upload_data_txt += json.dumps(item) + "\n"
 
@@ -97,7 +100,12 @@ def upload_batch(upload_data):
         upload_attempts = upload_attempts + 1
 
         try:
-            request = HTTPRequest(tornado.options.options.es_url + "/_bulk", method="POST", body=upload_data_txt, request_timeout=tornado.options.options.es_http_timeout_seconds)
+            #print(upload_data_txt)
+            headers = {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+
+            request = HTTPRequest(tornado.options.options.es_url + "/_bulk", method="POST", body=upload_data_txt , headers=headers, request_timeout=tornado.options.options.es_http_timeout_seconds)
             response = http_client.fetch(request)
             result = json.loads(response.body)
 
