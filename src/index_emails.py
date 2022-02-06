@@ -44,7 +44,7 @@ def delete_index():
         response = http_client.fetch(request)
         logging.info('Delete index done   %s' % response.body)
     except:
-        pass
+        logging.exception("Error while deleting index")
 
 def create_index():
 
@@ -77,7 +77,7 @@ def create_index():
         response = http_client.fetch(request)
         logging.info('Create index done   %s' % response.body)
     except:
-        pass
+        logging.exception("Error while creating index")
 
 
 total_uploaded = 0
